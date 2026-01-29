@@ -1,6 +1,10 @@
-import { IsString, IsOptional, IsEnum, IsUUID, MinLength } from 'class-validator';
+import { IsString, IsOptional, IsEnum, IsUUID, MinLength, IsIn } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CONDO_STATUS, type CondoStatus } from '@db/schema/enums';
+import { ListQueryDto } from '@shared/dto';
+
+const CONDO_SORT_FIELDS = ['name', 'code', 'createdAt', 'updatedAt'] as const;
+export type CondoSortBy = (typeof CONDO_SORT_FIELDS)[number];
 
 export class CreateCondoDto {
   @ApiProperty({ example: 'Sunrise Towers' })
@@ -76,4 +80,21 @@ export class CondoResponseDto {
 
   @ApiProperty()
   updatedAt!: Date;
+}
+
+export class ListCondosQueryDto extends ListQueryDto {
+  @ApiPropertyOptional({ enum: CONDO_STATUS, description: 'Filter by status' })
+  @IsOptional()
+  @IsEnum(CONDO_STATUS)
+  status?: CondoStatus;
+
+  @ApiPropertyOptional({ description: 'Search in name, address, code' })
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @ApiPropertyOptional({ enum: CONDO_SORT_FIELDS, default: 'createdAt' })
+  @IsOptional()
+  @IsIn(CONDO_SORT_FIELDS)
+  sortBy?: CondoSortBy = 'createdAt';
 }

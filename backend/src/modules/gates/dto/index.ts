@@ -4,6 +4,7 @@ import {
   IsEnum,
   IsUUID,
   MinLength,
+  IsIn,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
@@ -14,6 +15,10 @@ import {
   type GateMechanism,
   type GateStatus,
 } from '@db/schema/enums';
+import { ListQueryDto } from '@shared/dto';
+
+const GATE_SORT_FIELDS = ['name', 'deviceId', 'createdAt', 'updatedAt'] as const;
+export type GateSortBy = (typeof GATE_SORT_FIELDS)[number];
 
 export class CreateGateDto {
   @ApiProperty({ example: 'gate-device-001' })
@@ -109,4 +114,31 @@ export class GateResponseDto {
 
   @ApiProperty()
   updatedAt!: Date;
+}
+
+export class ListGatesQueryDto extends ListQueryDto {
+  @ApiPropertyOptional({ enum: GATE_TYPE, description: 'Filter by type' })
+  @IsOptional()
+  @IsEnum(GATE_TYPE)
+  type?: GateType;
+
+  @ApiPropertyOptional({ enum: GATE_MECHANISM, description: 'Filter by mechanism' })
+  @IsOptional()
+  @IsEnum(GATE_MECHANISM)
+  mechanism?: GateMechanism;
+
+  @ApiPropertyOptional({ enum: GATE_STATUS, description: 'Filter by status' })
+  @IsOptional()
+  @IsEnum(GATE_STATUS)
+  status?: GateStatus;
+
+  @ApiPropertyOptional({ description: 'Search in name, deviceId' })
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @ApiPropertyOptional({ enum: GATE_SORT_FIELDS, default: 'createdAt' })
+  @IsOptional()
+  @IsIn(GATE_SORT_FIELDS)
+  sortBy?: GateSortBy = 'createdAt';
 }

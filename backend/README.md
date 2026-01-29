@@ -31,6 +31,26 @@
 $ npm install
 ```
 
+## Database
+
+The app uses PostgreSQL with Drizzle ORM. Tables are created by pushing the schema (no volume persistence in dev by default).
+
+**With Docker:**
+
+```bash
+# Start DB and backend
+$ npm run docker:dev
+
+# In another terminal, create tables (run once or after schema changes)
+$ npm run db:push
+```
+
+**Local PostgreSQL:** set `DATABASE_URL` in `.env` (e.g. `postgres://postgres:postgres@localhost:5432/project_gate`), then run `npm run db:push` before starting the app.
+
+- `npm run db:push` – sync schema to the database (creates/updates tables)
+- `npm run db:generate` – generate migration SQL files
+- `npm run db:studio` – open Drizzle Studio
+
 ## Compile and run the project
 
 ```bash

@@ -1,8 +1,13 @@
 // src/modules/users/users.controller.ts
-import { Controller, Get, Post, Param, Body, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, Patch, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-import { CreateUserDto, UpdateUserDto, UserResponseDto } from './dto';
+import {
+  CreateUserDto,
+  ListUsersQueryDto,
+  UpdateUserDto,
+  UserResponseDto,
+} from './dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -10,10 +15,26 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @ApiOperation({ summary: 'List all users' })
-  @ApiResponse({ status: 200, description: 'List of users.', type: [UserResponseDto] })
-  async findAll() {
-    return this.usersService.findAll();
+  @ApiOperation({
+    summary: 'List users',
+    description: 'Paginated, filterable (role, search), sortable list.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Paginated list of users.',
+    schema: {
+      type: 'object',
+      properties: {
+        data: { type: 'array', items: { $ref: '#/components/schemas/UserResponseDto' } },
+        meta: {
+          type: 'object',
+          properties: { total: { type: 'number' }, page: { type: 'number' }, limit: { type: 'number' }, totalPages: { type: 'number' } },
+        },
+      },
+    },
+  })
+  async findAll(@Query() query: ListUsersQueryDto) {
+    return this.usersService.findAll(query);
   }
 
   @Get(':id')

@@ -1,8 +1,13 @@
 // src/modules/condos/condos.controller.ts
-import { Controller, Get, Post, Body, Param, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { CondosService } from './condos.service';
-import { CreateCondoDto, UpdateCondoDto, CondoResponseDto } from './dto';
+import {
+  CreateCondoDto,
+  ListCondosQueryDto,
+  UpdateCondoDto,
+  CondoResponseDto,
+} from './dto';
 
 @ApiTags('condos')
 @Controller('condos')
@@ -10,10 +15,26 @@ export class CondosController {
   constructor(private readonly condosService: CondosService) {}
 
   @Get()
-  @ApiOperation({ summary: 'List all condos' })
-  @ApiResponse({ status: 200, description: 'List of condos.', type: [CondoResponseDto] })
-  findAll() {
-    return this.condosService.findAll();
+  @ApiOperation({
+    summary: 'List condos',
+    description: 'Paginated, filterable (status, search), sortable list.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Paginated list of condos.',
+    schema: {
+      type: 'object',
+      properties: {
+        data: { type: 'array', items: { $ref: '#/components/schemas/CondoResponseDto' } },
+        meta: {
+          type: 'object',
+          properties: { total: { type: 'number' }, page: { type: 'number' }, limit: { type: 'number' }, totalPages: { type: 'number' } },
+        },
+      },
+    },
+  })
+  findAll(@Query() query: ListCondosQueryDto) {
+    return this.condosService.findAll(query);
   }
 
   @Get(':id')

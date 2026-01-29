@@ -25,7 +25,8 @@
       "@db/*": ["src/db/*"],
       "@modules/*": ["src/modules/*"],
       "@dto": ["src/dto/index.ts"],
-      "@shared": ["src/shared/index.ts"]
+      "@shared": ["src/shared/index.ts"],
+      "@shared/*": ["src/shared/*"]
     }
   }
 }

@@ -4,9 +4,14 @@ import {
   IsEnum,
   IsUUID,
   MinLength,
+  IsIn,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { USER_ROLE, type UserRole } from '@db/schema/enums';
+import { ListQueryDto, type SortOrder } from '@shared/dto';
+
+const USER_SORT_FIELDS = ['firstName', 'lastName', 'createdAt', 'updatedAt'] as const;
+export type UserSortBy = (typeof USER_SORT_FIELDS)[number];
 
 export class CreateUserDto {
   @ApiProperty({ example: 'John' })
@@ -81,4 +86,21 @@ export class UserResponseDto {
 
   @ApiProperty()
   updatedAt!: Date;
+}
+
+export class ListUsersQueryDto extends ListQueryDto {
+  @ApiPropertyOptional({ enum: USER_ROLE, description: 'Filter by role' })
+  @IsOptional()
+  @IsEnum(USER_ROLE)
+  role?: UserRole;
+
+  @ApiPropertyOptional({ description: 'Search in firstName, lastName, phoneNumber' })
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @ApiPropertyOptional({ enum: USER_SORT_FIELDS, default: 'createdAt' })
+  @IsOptional()
+  @IsIn(USER_SORT_FIELDS)
+  sortBy?: UserSortBy = 'createdAt';
 }
