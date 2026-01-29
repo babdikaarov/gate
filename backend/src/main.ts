@@ -1,15 +1,25 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+    }),
+  );
+
   const config = new DocumentBuilder()
     .setTitle('Smart Gate')
     .setDescription('The Smart Gate API description')
     .setVersion('1.0')
-    .addTag('gate')
+    .addTag('health', 'Health check')
+    .addTag('users', 'User management')
+    .addTag('condos', 'Condo / building management')
+    .addTag('gates', 'Gate device management')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

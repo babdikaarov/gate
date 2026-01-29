@@ -1,8 +1,9 @@
 // src/modules/users/users.service.ts
 import { Injectable, Inject } from '@nestjs/common';
-import { db } from '@db/drizzle'; // optional, if you want direct import
-import { users } from '@db/schema/users'; // Drizzle users table
+import { db } from '@db/drizzle';
+import { users } from '@db/schema/users';
 import { eq } from 'drizzle-orm';
+import type { CreateUserDto, UpdateUserDto } from './dto';
 
 @Injectable()
 export class UsersService {
@@ -12,17 +13,16 @@ export class UsersService {
     return this.database.select().from(users);
   }
 
-  async findById(id: string): Promise<typeof users.$inferSelect | undefined> {
+  async findById(id: string): Promise<(typeof users.$inferSelect) | undefined> {
     const [user] = await this.database
       .select()
       .from(users)
       .where(eq(users.id, id))
-      .limit(1); // Optimization: tell DB to stop after 1
-
-    return user; // This is now either the User object or undefined
+      .limit(1);
+    return user;
   }
 
-  async create(dto: typeof users.$inferInsert) {
+  async create(dto: CreateUserDto) {
     const [inserted] = await this.database
       .insert(users)
       .values({
@@ -35,10 +35,18 @@ export class UsersService {
     return inserted;
   }
 
-  async update(id: string, dto: typeof users.$inferInsert) {
+  async update(
+    id: string,
+    dto: UpdateUserDto,
+  ): Promise<(typeof users.$inferSelect) | undefined> {
     const [updated] = await this.database
       .update(users)
-      .set({ ...dto })
+      .set({
+        ...(dto.firstName !== undefined && { firstName: dto.firstName }),
+        ...(dto.lastName !== undefined && { lastName: dto.lastName }),
+        ...(dto.phoneNumber !== undefined && { phoneNumber: dto.phoneNumber }),
+        ...(dto.role !== undefined && { role: dto.role }),
+      })
       .where(eq(users.id, id))
       .returning();
     return updated;

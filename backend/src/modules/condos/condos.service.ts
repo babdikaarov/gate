@@ -2,24 +2,51 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { db } from '@db/drizzle';
 import { condos } from '@db/schema/condos';
+import { eq } from 'drizzle-orm';
+import type { CreateCondoDto } from './dto';
+import type { UpdateCondoDto } from './dto';
 
 @Injectable()
 export class CondosService {
-  constructor() {}
+  constructor(@Inject('DB') private readonly database: typeof db) {}
 
-  async create(data: any) {
-    return db.insert(condos).values(data).returning();
+  async create(data: CreateCondoDto) {
+    const [inserted] = await this.database
+      .insert(condos)
+      .values({
+        name: data.name,
+        address: data.address,
+        code: data.code,
+        status: data.status,
+      })
+      .returning();
+    return inserted;
   }
 
   async findAll() {
-    return db.select().from(condos);
+    return this.database.select().from(condos);
   }
 
   async findOne(id: string) {
-    return db.select().from(condos).where(condos.id.eq(id)).get();
+    const [row] = await this.database
+      .select()
+      .from(condos)
+      .where(eq(condos.id, id))
+      .limit(1);
+    return row;
   }
 
-  async update(id: string, data: any) {
-    return db.update(condos).set(data).where(condos.id.eq(id)).returning();
+  async update(id: string, data: UpdateCondoDto) {
+    const [updated] = await this.database
+      .update(condos)
+      .set({
+        ...(data.name !== undefined && { name: data.name }),
+        ...(data.address !== undefined && { address: data.address }),
+        ...(data.code !== undefined && { code: data.code }),
+        ...(data.status !== undefined && { status: data.status }),
+      })
+      .where(eq(condos.id, id))
+      .returning();
+    return updated;
   }
 }

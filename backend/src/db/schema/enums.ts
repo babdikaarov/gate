@@ -31,12 +31,27 @@ export const CONDO_STATUS = {
 } as const;
 export type CondoStatus = (typeof CONDO_STATUS)[keyof typeof CONDO_STATUS];
 
-// Convert record to array of values for pgEnum
-export const gateTypeEnum = pgEnum('gate_type', GATE_TYPE);
-export const gateMechanismEnum = pgEnum('gate_mechanism', GATE_MECHANISM);
-export const gateStatusEnum = pgEnum('gate_status', GATE_STATUS);
-export const userRoleEnum = pgEnum('user_role', USER_ROLE);
-export const condoStatusEnum = pgEnum('condo_status', CONDO_STATUS);
+// pgEnum expects array of strings; use Object.values for portability
+export const gateTypeEnum = pgEnum(
+  'gate_type',
+  Object.values(GATE_TYPE) as [string, ...string[]],
+);
+export const gateMechanismEnum = pgEnum(
+  'gate_mechanism',
+  Object.values(GATE_MECHANISM) as [string, ...string[]],
+);
+export const gateStatusEnum = pgEnum(
+  'gate_status',
+  Object.values(GATE_STATUS) as [string, ...string[]],
+);
+export const userRoleEnum = pgEnum(
+  'user_role',
+  Object.values(USER_ROLE) as [string, ...string[]],
+);
+export const condoStatusEnum = pgEnum(
+  'condo_status',
+  Object.values(CONDO_STATUS) as [string, ...string[]],
+);
 
 export const timestamps = {
   createdAt: timestamp('created_at', { withTimezone: true })

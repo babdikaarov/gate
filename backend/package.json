@@ -6,6 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "docker:dev": "docker compose -f docker-compose.dev.yml up",
     "build": "nest build",
     "circ": "dpdm --no-warning --progress --no-tree -T --tsconfig='./tsconfig.json' --warning ./src/**/*.ts",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
